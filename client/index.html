@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Basement</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+    <body>
+        <label for="username" id="username-input">Username: </label>
+        <input type="text" name="username" id="username-input-label">
+        <button type="button" id="login-button">Login</button>
+        <script>
+            let state = "login";
+
+            const socket = io();
+
+            const login = username => {
+                if (state == "login") {
+                    socket.emit("login", { username });
+                    state = "chat";
+                }
+            }
+
+            socket.on("login", ({ success }) => {
+                if (success) {
+                    document.getElementById("username-input").remove();
+                    document.getElementById("username-input-label").remove();
+                    document.getElementById("login-button").remove();
+                } else {
+                    alert("Username already taken");
+                }
+            });
+
+            document.addEventListener("keydown", e => {
+                if (e.repeat) return;
+                if (e.key == "Enter") login(document.getElementById("username-input-label").value);
+            });
+
+            document.getElementById("login-button").addEventListener("click", () => {
+                login(document.getElementById("username-input-label").value);
+            });
+        </script>
+    </body>
+</html>
