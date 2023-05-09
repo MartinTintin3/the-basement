@@ -12,18 +12,21 @@ const db = new sqlite3.Database(":memory:");
 (async () => {
 
 let chat_stmt = null;
+let fetch_stmt = null;
 
 await new Promise((resolve, reject) => {
 	db.serialize(() => {
 		db.run("CREATE TABLE IF NOT EXISTS message (data TEXT, username TEXT, time INTEGER)");
 
 		chat_stmt = db.prepare("INSERT INTO message VALUES (?, ?, ?)");
-
+		fetch_stmt = db.prepare("SELECT * FROM message ORDER BY time DESC LIMIT ? OFFSET ?");
 		resolve();
 	});
 });
 
 process.on("SIGINT", () => {
+	chat_stmt.finalize();
+	fetch_stmt.finalize();
 	db.close();
 	process.exit();
 });
@@ -61,9 +64,25 @@ io.on("connection", socket => {
 		io.emit("chat", { username: user.username, message, time });
 	});
 
+	socket.on("fetch", ({ offset, limit }) => {
+		if (user.username == null) socket.emit("fetch", { success: false, message: "You must be logged in to fetch messages" });
+		if (offset == null) offset = 0;
+		if (offset < 0) return socket.emit("fetch", { success: false, message: "Offset must be positive" });
+		if (limit < 1) return socket.emit("fetch", { success: false, message: "Limit must be at least 1" });
+		if (limit > 100) return socket.emit("fetch", { success: false, message: "Limit must be less than 100" });
+		
+		fetch_stmt.all(limit, offset, (err, rows) => {
+			if (err) return socket.emit("fetch", { success: false, message: "Error fetching messages" });
+			socket.emit("fetch", { success: true, messages: rows, offset, limit });
+		});
+	});
+
 	socket.on("disconnect", () => {
-		console.log("user disconnected" + (user.username ? `: ${user.username}` : ""));
-		if (user.username) users.splice(users.indexOf(user), 1);
+		console.log("socket disconnected");
+		if (user.username) {
+			console.log(`"${user.username}" logged out`);
+			users.splice(users.indexOf(user), 1);
+		}
 	});
 });
 
