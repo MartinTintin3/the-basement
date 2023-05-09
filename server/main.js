@@ -77,6 +77,12 @@ io.on("connection", socket => {
 		});
 	});
 
+	socket.on("users", () => {
+		if (user.username == null) socket.emit("users", { success: false, message: "You must be logged in to fetch users" });
+
+		socket.emit("users", { success: true, users: users.map(u => u.username) });
+	});
+
 	socket.on("disconnect", () => {
 		console.log("socket disconnected");
 		if (user.username) {

@@ -9,18 +9,20 @@
     <link rel="stylesheet" href="./style.css">
 </head>
     <body>
-        <div id="login-div">
+        <div id="login">
             <label for="username" id="username-input">Username: </label>
             <input type="text" name="username" id="username-input-label">
             <button type="button" id="login-button">Login</button>'
         </div>
-        <div id="chat-div" hidden>
-            <div id="chat-content-div" style="border: 1px solid black">
-                <button id="scroll-down-button" type="button">Scroll Down</button>
-            </div>
-            <div id="user-list">
-                <h3>Users:</h3>
-                <ul id="user-list-ul"></ul>
+        <div id="chat" hidden>
+            <div id="content">
+                <div id="messages" style="border: 1px solid black">
+                    <button id="scroll-down-button" type="button">Scroll Down</button>
+                </div>
+                <div id="user-list">
+                    <h3>Users:</h3>
+                    <ul id="user-list-ul"></ul>
+                </div>
             </div>
             <input type="text" name="chat" id="chat-input" placeholder="Chat...">
             <button type="button" id="send-button">Send</button>

@@ -1,16 +1,19 @@
 let state = "login";
 
-const chat_content_div = document.getElementById("chat-content-div");
+const login_div = document.getElementById("login");
+const chat_div = document.getElementById("chat");
+const messages_div = document.getElementById("messages");
 const scroll_down_button = document.getElementById("scroll-down-button");
+const user_list_ul = document.getElementById("user-list-ul");
 
 let scroll_locked = true;
 
 const lock_scroll = () => {
-    chat_content_div.scrollTop = chat_content_div.scrollHeight;
+    messages_div.scrollTop = messages_div.scrollHeight;
 }
 
-chat_content_div.addEventListener("scroll", () => {
-    scroll_locked = chat_content_div.scrollTop + chat_content_div.clientHeight == chat_content_div.scrollHeight;
+messages_div.addEventListener("scroll", () => {
+    scroll_locked = messages_div.scrollTop + messages_div.clientHeight == messages_div.scrollHeight;
     scroll_down_button.hidden = scroll_locked;
 });
 
@@ -34,8 +37,8 @@ const chat = message => {
 
 socket.on("login", ({ success, message }) => {
     if (success) {
-        document.getElementById("login-div").remove();
-        document.getElementById("chat-div").hidden = false;
+        login_div.remove();
+        chat_div.hidden = false;
 
         socket.emit("fetch", ({ limit: 2, offset: 1 }));
     } else {
@@ -47,7 +50,7 @@ socket.on("chat", ({ message, username, time }) => {
     const div = document.createElement("div");
     div.className = "chat-message";
     div.innerHTML = `<p><b>${username}: </b>${message}</p>`;
-    chat_content_div.appendChild(div);
+    messages_div.appendChild(div);
     if (scroll_locked) lock_scroll();
 });
 
@@ -57,6 +60,16 @@ socket.on("fetch", ({ success, messages, offset, limit }) => {
     } else {
         alert("Failed to fetch messages");
     }
+});
+
+socket.on("users", ({ success, users }) => {
+    user_list_ul.innerHTML = "";
+    users.forEach(username => {
+        const li = document.createElement("li");
+        li.className = "user-list-item";
+        li.innerText = username;
+        user_list_ul.appendChild(li);
+    });
 });
 
 document.addEventListener("keydown", e => {
