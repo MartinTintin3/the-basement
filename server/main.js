@@ -15,16 +15,15 @@ let chat_stmt = null;
 
 await new Promise((resolve, reject) => {
 	db.serialize(() => {
-		db.run("CREATE TABLE message (data TEXT, username TEXT, time INTEGER)");
+		db.run("CREATE TABLE IF NOT EXISTS message (data TEXT, username TEXT, time INTEGER)");
 
-		chat_stmt = db.prepare("INSERT INTO chat VALUES (?, ?, ?)");
+		chat_stmt = db.prepare("INSERT INTO message VALUES (?, ?, ?)");
 
 		resolve();
 	});
 });
 
 process.on("SIGINT", () => {
-	
 	db.close();
 	process.exit();
 });
@@ -53,11 +52,18 @@ io.on("connection", socket => {
 	});
 
 	socket.on("chat", ({ message}) => {
-		chat_stmt.run(message, user.username, Date.now());
+		if (message.length <= 0 || message.length > 256) return;
+		const time = Date.now();
+
+		chat_stmt.run(message, user.username, time);
+		console.log(`User ${user.username} sent message: ${message}`);
+
+		io.emit("chat", { username: user.username, message, time });
 	});
 
 	socket.on("disconnect", () => {
-		console.log("user disconnected");
+		console.log("user disconnected" + (user.username ? `: ${user.username}` : ""));
+		if (user.username) users.splice(users.indexOf(user), 1);
 	});
 });
 

@@ -8,9 +8,19 @@
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 </head>
     <body>
-        <label for="username" id="username-input">Username: </label>
-        <input type="text" name="username" id="username-input-label">
-        <button type="button" id="login-button">Login</button>
+        <div id="login-div">
+            <label for="username" id="username-input">Username: </label>
+            <input type="text" name="username" id="username-input-label">
+            <button type="button" id="login-button">Login</button>
+        </div>
+        <div id="chat-div" hidden>
+            <div id="chat-content-div">
+                <ul style="list-style-type: none;" id="chat-list">
+                </ul>
+            </div>
+            <input type="text" name="chat" id="chat-input" placeholder="Chat...">
+            <button type="button" id="send-button">Send</button>
+        </div>
         <script>
             let state = "login";
 
@@ -23,14 +33,19 @@
                 }
             }
 
-            socket.on("login", ({ success }) => {
+            socket.on("login", ({ success, message }) => {
                 if (success) {
-                    document.getElementById("username-input").remove();
-                    document.getElementById("username-input-label").remove();
-                    document.getElementById("login-button").remove();
+                    document.getElementById("login-div").remove();
+                    document.getElementById("chat-div").hidden = false;
                 } else {
-                    alert("Username already taken");
+                    alert(message);
                 }
+            });
+
+            socket.on("chat", ({ message, username, time }) => {
+                const li = document.createElement("li");
+                li.className = "chat-message";
+                li.innerHTML = ``;
             });
 
             document.addEventListener("keydown", e => {
@@ -40,6 +55,11 @@
 
             document.getElementById("login-button").addEventListener("click", () => {
                 login(document.getElementById("username-input-label").value);
+            });
+
+            document.getElementById("send-button").addEventListener("click", () => {
+                socket.emit("chat", { message: document.getElementById("chat-input").value });
+                document.getElementById("chat-input").value = "";
             });
         </script>
     </body>
