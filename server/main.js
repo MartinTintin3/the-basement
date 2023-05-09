@@ -51,11 +51,13 @@ io.on("connection", socket => {
 		user.username = username;
 		users.push(user);
 		console.log(`User logged in: ${username}`);
+
 		socket.emit("login", { success: true });
+		io.emit("users", { success: true, users: users.map(u => u.username) });
 	});
 
 	socket.on("chat", ({ message}) => {
-		if (message.length <= 0 || message.length > 256) return;
+		if (message.length <= 0 || message.length > 256 || user.username == null) return;
 		const time = Date.now();
 
 		chat_stmt.run(message, user.username, time);
@@ -73,6 +75,7 @@ io.on("connection", socket => {
 		
 		fetch_stmt.all(limit, offset, (err, rows) => {
 			if (err) return socket.emit("fetch", { success: false, message: "Error fetching messages" });
+
 			socket.emit("fetch", { success: true, messages: rows, offset, limit });
 		});
 	});
@@ -88,6 +91,7 @@ io.on("connection", socket => {
 		if (user.username) {
 			console.log(`"${user.username}" logged out`);
 			users.splice(users.indexOf(user), 1);
+			io.emit("users", { success: true, users: users.map(u => u.username) });
 		}
 	});
 });

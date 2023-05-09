@@ -56,7 +56,7 @@ socket.on("chat", ({ message, username, time }) => {
 
 socket.on("fetch", ({ success, messages, offset, limit }) => {
     if (success) {
-        alert(JSON.stringify(messages));
+        //alert(JSON.stringify(messages));
     } else {
         alert("Failed to fetch messages");
     }
