@@ -25,6 +25,7 @@ p, h1, h2, h3, h4, h5, h6, label, a {
 #messages, #user-list {
     border-radius: 5px;
     border: 3px solid var(--text-color);
+    display: inline-block;
 }
 
 #messages {
@@ -42,6 +43,7 @@ p, h1, h2, h3, h4, h5, h6, label, a {
 }
 
 #user-list {
+    top: 0;
     overflow: scroll;
     position: relative;
     height: 60hv;
@@ -50,3 +52,4 @@ p, h1, h2, h3, h4, h5, h6, label, a {
 #user-list-ul {
     list-style-type: none;
 }
+
