@@ -26,12 +26,11 @@ const socket = io();
 const login = username => {
     if (state == "login") {
         socket.emit("login", { username });
-        state = "chat";
     }
 }
 
-const chat = message => {
-    socket.emit("chat", { message });
+const message = data => {
+    socket.emit("message", { data });
     document.getElementById("chat-input").value = "";
 }
 
@@ -40,16 +39,18 @@ socket.on("login", ({ success, message }) => {
         login_div.remove();
         chat_div.hidden = false;
 
+        state = "chat";
+
         socket.emit("fetch", ({ limit: 2, offset: 1 }));
     } else {
         alert(message);
     }
 });
 
-socket.on("chat", ({ message, username, time }) => {
+socket.on("message", ({ data, author, time }) => {
     const div = document.createElement("div");
     div.className = "chat-message";
-    div.innerHTML = `<p><b>${username}: </b>${message}</p>`;
+    div.innerHTML = `<p><b>${author}: </b>${data}</p>`;
     messages_div.appendChild(div);
     if (scroll_locked) lock_scroll();
 });
@@ -78,7 +79,7 @@ document.addEventListener("keydown", e => {
         if (state == "login") {
             login(document.getElementById("username-input-label").value);
         } else if (state == "chat") {
-            chat(document.getElementById("chat-input").value);
+            message(document.getElementById("chat-input").value);
         }
     }
 });
@@ -88,5 +89,5 @@ document.getElementById("login-button").addEventListener("click", () => {
 });
 
 document.getElementById("send-button").addEventListener("click", () => {
-    chat(document.getElementById("chat-input").value);
+    message(document.getElementById("chat-input").value);
 });

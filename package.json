@@ -4,6 +4,7 @@
   "description": "",
   "main": "server/main.js",
   "scripts": {},
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MartinTintin3/the-basement.git"

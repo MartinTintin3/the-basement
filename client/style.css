@@ -18,6 +18,10 @@ p, h1, h2, h3, h4, h5, h6, label, a {
     color: var(--text-color);
 }
 
+.chat-message {
+    text-align: left;
+}
+
 #messages, #user-list {
     border-radius: 5px;
     border: 3px solid var(--text-color);
